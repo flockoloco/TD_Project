@@ -60,6 +60,8 @@ void ATD_ProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATD_ProjectCharacter::Look);
+
+		PlayerInputComponent->BindAction("InteractObject", IE_Pressed, this, &AMiniProjectCharacter::TryInteract);
 	}
 	else
 	{
@@ -91,5 +93,37 @@ void ATD_ProjectCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AMiniProjectCharacter::TryInteract()
+{
+	FHitResult HitResult;
+	FVector StartLocation = GetActorLocation(); // The player's current location
+	FVector Direction = GetActorForwardVector(); // The direction the player is looking in
+	FVector EndLocation = StartLocation + (Direction * 5); // The end location of the raycast
+
+	// Perform the raycast
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
+
+	if (bHit)
+	{
+		// If the raycast hit an object, get the class of the hit object
+
+		/*if (HitResult.GetActor()->ActorHasTag(FName("Interactable")))
+		{
+			IInteractInterface* interactInterface = Cast<IInteractInterface>(HitResult.GetActor()->GetClass());
+			if (interactInterface)
+			{
+				interactInterface->OnInteract();
+			}
+		}
+		else {*/
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("nadinha da tag :O"));
+		//}
+		// Now you can do something with HitClass
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("nao apanhei nadinha"));
 	}
 }
