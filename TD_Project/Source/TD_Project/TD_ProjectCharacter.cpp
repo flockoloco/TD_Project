@@ -61,7 +61,7 @@ void ATD_ProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATD_ProjectCharacter::Look);
 
-		PlayerInputComponent->BindAction("InteractObject", IE_Pressed, this, &AMiniProjectCharacter::TryInteract);
+		PlayerInputComponent->BindAction("InteractObject", IE_Pressed, this, &ATD_ProjectCharacter::TryInteract);
 	}
 	else
 	{
@@ -96,31 +96,35 @@ void ATD_ProjectCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void AMiniProjectCharacter::TryInteract()
+void ATD_ProjectCharacter::TryInteract()
 {
 	FHitResult HitResult;
 	FVector StartLocation = GetActorLocation(); // The player's current location
-	FVector Direction = GetActorForwardVector(); // The direction the player is looking in
-	FVector EndLocation = StartLocation + (Direction * 5); // The end location of the raycast
+
+
+	FVector Direction = FirstPersonCameraComponent->GetForwardVector(); // The direction the player is looking in
+	FVector EndLocation = StartLocation + (Direction * 5000); // The end location of the raycast
 
 	// Perform the raycast
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, true, 30.0f, 0, 5.0f);
 
 	if (bHit)
 	{
 		// If the raycast hit an object, get the class of the hit object
 
-		/*if (HitResult.GetActor()->ActorHasTag(FName("Interactable")))
+		if (HitResult.GetActor()->ActorHasTag(FName("Interactable")))
 		{
-			IInteractInterface* interactInterface = Cast<IInteractInterface>(HitResult.GetActor()->GetClass());
+			IInteractInterface* interactInterface = Cast<IInteractInterface>(HitResult.GetActor());
+			
 			if (interactInterface)
 			{
 				interactInterface->OnInteract();
 			}
 		}
-		else {*/
+		else {
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("nadinha da tag :O"));
-		//}
+		}
 		// Now you can do something with HitClass
 	}
 	else {
